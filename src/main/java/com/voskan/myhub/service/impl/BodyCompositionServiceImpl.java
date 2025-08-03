@@ -5,6 +5,7 @@ import com.voskan.myhub.entity.BodyComposition;
 import com.voskan.myhub.exception.ResourceNotFoundException;
 import com.voskan.myhub.repository.BodyCompositionRepository;
 import com.voskan.myhub.service.BodyCompositionService;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,9 +40,14 @@ public class BodyCompositionServiceImpl implements BodyCompositionService {
     }
 
     @Override
-    public BodyCompositionDTO update(Long id, BodyCompositionDTO dto) {
+    public BodyCompositionDTO update(Long id, BodyCompositionDTO dto, UUID currentUserId) {
         BodyComposition existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Not found"));
+
+        if (!existing.getUserId().equals(currentUserId)) {
+            throw new AccessDeniedException("You are not allowed to update this record.");
+        }
+
         existing.setMonth(dto.getMonth());
         existing.setBodyWeight(dto.getBodyWeight());
         existing.setBodyFatPercentage(dto.getBodyFatPercentage());
@@ -49,11 +55,20 @@ public class BodyCompositionServiceImpl implements BodyCompositionService {
         existing.setBodySkinPercentage(dto.getBodySkinPercentage());
         existing.setBodyBonePercentage(dto.getBodyBonePercentage());
         existing.setBodyOtherPercentage(dto.getBodyOtherPercentage());
+
         return toDTO(repository.save(existing));
     }
 
+
     @Override
-    public void delete(Long id) {
+    public void delete(Long id, UUID currentUserId) {
+        BodyComposition existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Not found"));
+
+        if (!existing.getUserId().equals(currentUserId)) {
+            throw new AccessDeniedException("You are not allowed to delete this record.");
+        }
+
         repository.deleteById(id);
     }
 

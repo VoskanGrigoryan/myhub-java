@@ -9,6 +9,6 @@ public interface BodyCompositionService {
     List<BodyCompositionDTO> getByUserId(UUID userId);
     BodyCompositionDTO getById(Long id);
     BodyCompositionDTO create(BodyCompositionDTO dto);
-    BodyCompositionDTO update(Long id, BodyCompositionDTO dto);
-    void delete(Long id);
+    BodyCompositionDTO update(Long id, BodyCompositionDTO dto, UUID currentUserId);
+    void delete(Long id, UUID currentUserId);
 }
